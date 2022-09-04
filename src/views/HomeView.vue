@@ -30,13 +30,34 @@
 
     data(){
       return{
-        pokemonList: [{img:"@/assets/logo.png", name:"Pikachu", content:"Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quidem qui commodi ipsam modi molestiae nobis est, assumenda explicabo, dignissimos rerum incidunt quam beatae doloremque alias voluptates, nihil impedit placeat esse!"},
-        {img:"@/assets/logo.png", name:"Pikachu2", content:"Lorem ipsum doing elit. Quidem qui commodi ipsam modi molestiae nobis est, assumenda explicabo, dignissimos rerum incidunt quam beatae doloremque alias voluptates, nihil impedit placeat esse!"},
-        {img:"@/assets/logo.png", name:"Pikachu3", content:"sit, amet consectetur adipisicing elit. Quidem qui commodi ipsam modi molestiae nobis est, assumenda explicabo, dignissimos rerum incidunt quam beatae doloremque alias voluptates, nihil impedit placeat esse!"}]
+        pokemonList: []
       }
     },
 
     components: {
     },
+
+    methods: {
+      editApi(data){
+        data.map()
+      }
+    },
+
+    computed: {
+    },
+
+    mounted(){
+      fetch("https://pokeapi.co/api/v2/pokemon?limit=5").then(response => response.json())
+        .then(data => data.results.map(pokemon =>{
+          fetch(pokemon.url).then(response => response.json())
+            .then(detailedData => {
+              console.log(detailedData);
+            })
+      }))
+    }
+
+    
+
+    
   }
 </script>
