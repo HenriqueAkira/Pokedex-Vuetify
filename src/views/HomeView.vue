@@ -8,12 +8,13 @@
             <v-img contain height="150" :src="pokemon.sprite"></v-img>
             <v-divider></v-divider>
             <v-card-title>
-              {{pokemon.name}}
+              #{{pokemon.id}} {{pokemon.name}}
             </v-card-title>
             <v-card-text>
               <v-row> 
                 <v-col v-for="type in pokemon.types" :key="type.type.name">
-                  {{type.type.name}}
+                  {{type.type.name.replace(/\s+/, "") }}
+                  <v-img class="red"  height="110" width="110" :src="require(`@/assets/${type.type.name}.svg`)"></v-img>
                 </v-col>
               </v-row>
             </v-card-text>
@@ -42,8 +43,17 @@
     },
 
     methods: {
-      editApi(data){
-        data.map()
+
+      getImgSrc(){
+        return "@/assets/bug.svg"
+      },
+
+      editApi(pokemon, data){
+        pokemon.id = data.id
+        pokemon.name = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)
+        pokemon.types = data.types
+        pokemon.sprite = data.sprites.front_default
+        return pokemon
       }
     },
 
@@ -55,10 +65,7 @@
         .then(data => data.results.map(pokemon =>{
           fetch(pokemon.url).then(response => response.json())
             .then(detailedData => {
-              pokemon.types = detailedData.types
-              pokemon.sprite = detailedData.sprites.front_default
-              this.pokemonList.push(pokemon)
-              console.log(pokemon);
+              this.pokemonList.push(this.editApi(pokemon, detailedData))
             })
       }))
     }
@@ -68,3 +75,6 @@
     
   }
 </script>
+
+<style lang="">
+</style>
