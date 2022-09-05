@@ -2,7 +2,7 @@
   <v-container class="grey lighten-5" fluid>
 
     <v-row>
-      <v-col v-for="pokemon in pokemonList" :key="pokemon.name" cols="12" xl="3" lg="4" md="4"  sm="6">
+      <v-col v-for="pokemon in pokemonList" :key="pokemon.name" cols="12" xl="3" lg="3" md="4"  sm="6">
 
         <v-card class="mb-10 text-center fill-height" elevation="6">
             <v-img contain height="150" :src="pokemon.sprite"></v-img>
