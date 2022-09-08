@@ -3,7 +3,7 @@
 
     <v-row class=" mb-4 mx-4">
 
-        <v-col cols="12" md="6" sm="6">
+        <v-col cols="12" md="3" sm="3">
             <template >
                 <v-text-field
                 v-model="search"
@@ -12,17 +12,17 @@
             </template>
         </v-col>
 
+        <v-col  cols="12" md="2" sm="6">
+          <v-select
+            v-model="typeFilter"
+            :items="types"
+            chips
+            label="Types"
+            multiple
+            solo
+          ></v-select>
+        </v-col>
 
-        <v-tooltip top>
-        <template v-slot:activator="{on, attrs}">
-            <v-btn small depressed class="mr-5 grey--text" @click="sortBy('person')" v-bind="attrs" v-on="on">
-            <v-icon left small>mdi-account</v-icon>
-            <span class="caption text-lowercase">By person</span>
-            </v-btn>
-            
-        </template>
-        <span>Sort project by person</span>
-        </v-tooltip>
     </v-row>
 
     <v-row>
@@ -80,7 +80,10 @@
       return{
         pokemonList: [],
         filteredlist: [],
-        search: ""
+        search: "",
+        types:["normal", "fire", "water", "grass", "flying", "fighting", "poison", "electric", 
+        "ground", "rock", "psychic", "ice", "bug", "ghost", "steel", "dragon", "dark", "fairy"],
+        typeFilter: [],
       }
     },
 
@@ -110,8 +113,26 @@
             return pokemon
         },
 
-        filterPokemon(search){
-                this.filteredlist = this.pokemonList.filter(pokemon => {return pokemon.name.toUpperCase().startsWith(search.toUpperCase())})
+        filterPokemonSearch(search){
+            this.filteredlist = this.filteredlist.filter(pokemon => {return pokemon.name.toUpperCase().startsWith(search.toUpperCase())})
+        },
+
+        filterPokemonTypes(){
+            this.filteredlist = this.filteredlist.filter(pokemon => {
+              var valid = false
+              pokemon.types.forEach(type => {
+                this.typeFilter.forEach(typeFilter =>{
+                  if(type.type.name == typeFilter){
+                     valid = true
+                  }
+                })
+              });
+              return valid
+              })
+        },
+
+        resetFilter(){
+          this.filteredlist = this.pokemonList
         },
 
         sortPokemon(){
@@ -122,12 +143,26 @@
 
     computed: {
         filteredPokemonList(){
-            if (this.search){
-                this.filterPokemon(this.search)
-                return this.filteredlist
+            var filters = []
+
+            this.resetFilter()
+
+            if (this.typeFilter.length != 0){
+              filters.push("type")
+              this.filterPokemonTypes(this.types)
+            }
+            
+            if (this.search != ""){
+              filters.push("search")
+              this.filterPokemonSearch(this.search)
+            }
+            console.log(filters);
+
+            if(filters.length == 0){
+              this.sortPokemon()
+              return this.pokemonList
             }else{
-                this.sortPokemon()
-                return this.pokemonList
+              return this.filteredlist
             }
         }
     },
