@@ -1,8 +1,16 @@
 <template>
   <v-container class="grey lighten-5" fluid>
-
+     <v-dialog
+      persistent
+      v-model="loading"
+      max-width="600px"
+      transition="dialog-transition"
+    >
+     
+     <v-img src="@/assets/pokemon-pokeball.gif" ></v-img>
+      
+    </v-dialog>
     <v-row class=" mb-4 mx-4">
-
         <v-col cols="12" md="3" sm="3">
             <template >
                 <v-text-field
@@ -23,13 +31,57 @@
           ></v-select>
         </v-col>
 
+        <v-col>
+          <v-tooltip top>
+          <template v-slot:activator="{on, attrs}">
+            <v-btn small depressed class="mr-5 grey--text" @click="sortBy('id')" v-bind="attrs" v-on="on">
+              <v-icon left small>mdi-account</v-icon>
+              <span class="caption text-lowercase">By id</span>
+            </v-btn>
+              
+          </template>
+          <span>Sort pokemons by Id</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template v-slot:activator="{on, attrs}">
+              <v-btn small depressed class="mr-5 grey--text" @click="sortBy('name')" v-bind="attrs" v-on="on">
+                <v-icon left small>mdi-account</v-icon>
+                <span class="caption text-lowercase">By name</span>
+              </v-btn>
+                
+            </template>
+            <span>Sort pokemons by name</span>
+          </v-tooltip>
+        </v-col>
+
     </v-row>
 
+    <p v-if="filteredPokemonList.length == 0">Results not found</p>
     <v-row>
       <v-col v-for="pokemon in filteredPokemonList" :key="pokemon.name" cols="12" xl="3" lg="3" md="4"  sm="6" :search="search">
 
-        <v-card class="mb-10 text-center fill-height" elevation="6">
-            <v-img contain height="150" :src="pokemon.sprite"></v-img>
+        <v-card class="mb-10 text-center fill-height " elevation="6">
+            
+
+            <v-img
+              :style="{backgroundColor:pokemon.avgColor}"
+              :src="pokemon.sprite"
+              :lazy-src="pokemon.sprite"
+            >
+              <template v-slot:placeholder>
+                <v-row
+                  class="fill-height ma-0"
+                  align="center"
+                  justify="center"
+                >
+                  <v-progress-circular
+                    indeterminate
+                    color="grey lighten-5"
+                  ></v-progress-circular>
+                </v-row>
+              </template>
+            </v-img>
+
             <v-divider></v-divider>
             <v-list-item>
               <v-list-item-content class="text-overline">
@@ -65,14 +117,27 @@
 
       </v-col>
     </v-row>
+    <div class="text-center">
+      <v-pagination
+        :length="120"
+        :total-visible="7"
+        v-model="page"
+        circle
+        @input="next"
+      ></v-pagination>
+    </div>
 
   </v-container>
+
+  
 </template>
 
 
 
 
 <script>
+
+  import analyze from 'rgbaster'
 
   export default {
 
@@ -84,6 +149,9 @@
         types:["normal", "fire", "water", "grass", "flying", "fighting", "poison", "electric", 
         "ground", "rock", "psychic", "ice", "bug", "ghost", "steel", "dragon", "dark", "fairy"],
         typeFilter: [],
+        loading: true,
+        page: 1,
+        ascending: true,
       }
     },
 
@@ -92,15 +160,13 @@
 
     methods: {
 
-        getImgSrc(){
-            return "@/assets/bug.svg"
-        },
-
         editApi(pokemon, data){
             pokemon.id = data.id
             pokemon.name = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)
             pokemon.types = data.types
             pokemon.sprite = data.sprites.front_default
+            const result = analyze(pokemon.sprite)
+            result.then(result => pokemon.avgColor = result[0].color);
 
             const baseStats = []
 
@@ -111,6 +177,10 @@
             pokemon.stats = baseStats
 
             return pokemon
+        },
+
+        next(){
+          this.getPokemonApi((this.page - 1) * 8)
         },
 
         filterPokemonSearch(search){
@@ -135,9 +205,33 @@
           this.filteredlist = this.pokemonList
         },
 
-        sortPokemon(){
-            this.pokemonList.sort((a,b) => a.id < b.id? -1:1)
-        }   
+        sortBy(prop){
+          if(!this.ascending){
+            this.pokemonList.sort((a,b)=> a[prop] < b[prop] ? -1 : 1)
+            this.ascending = true
+          }else{
+            this.pokemonList.sort((a,b)=> a[prop] < b[prop] ? 1 : -1)
+            this.ascending = false
+          }
+        },
+
+        getPokemonApi(offset){
+        this.loading = true 
+        this.pokemonList = []
+        fetch(`https://pokeapi.co/api/v2/pokemon?limit=14&offset=${offset}`).then(response => response.json())
+          .then(data => data.results.map(pokemon =>{
+            fetch(pokemon.url).then(response => response.json())
+              .then(detailedData => {
+                this.pokemonList.push(this.editApi(pokemon, detailedData))
+
+              })
+          }))
+        setTimeout(() => {
+          this.loading = false
+          
+        }, 3500);
+        }
+        
 
     },
 
@@ -156,10 +250,8 @@
               filters.push("search")
               this.filterPokemonSearch(this.search)
             }
-            console.log(filters);
 
             if(filters.length == 0){
-              this.sortPokemon()
               return this.pokemonList
             }else{
               return this.filteredlist
@@ -168,14 +260,9 @@
     },
 
     mounted(){
-      fetch("https://pokeapi.co/api/v2/pokemon?limit=10").then(response => response.json())
-        .then(data => data.results.map(pokemon =>{
-          fetch(pokemon.url).then(response => response.json())
-            .then(detailedData => {
-              this.pokemonList.push(this.editApi(pokemon, detailedData))
-            })
-      }))
-    }
+      this.getPokemonApi(0)
+
+    },
 
   }
 </script>
@@ -285,3 +372,4 @@
 }
 
 </style>
+
