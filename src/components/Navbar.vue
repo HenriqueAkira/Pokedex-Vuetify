@@ -5,7 +5,7 @@
         <v-app-bar-nav-icon @click="drawer = !drawer" class="grey--text d-none d-md-block" ></v-app-bar-nav-icon>
 
         <v-toolbar-title class="text-uppercase grey--text title">
-            <v-icon>mdi-pokemon-go</v-icon>
+            <v-icon color="red">mdi-pokemon-go</v-icon>
             <span class="font-weight-light">Pokedex</span>
             <span> Vue</span>
         </v-toolbar-title>
