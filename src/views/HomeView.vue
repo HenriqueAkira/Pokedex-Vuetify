@@ -8,7 +8,7 @@
       <p class="overline">Another Nintendo franchise, Pokémon, is the fourth best-selling series of all time</p>
     </div>
 
-    <v-parallax dark height="900" class="parallax" src="@/assets/xerneas.jpg">
+    <v-parallax dark height="900" class="parallax" src="@/assets/grass-background.jpg">
       <div class="pokedex-parallax mx-auto">
           <v-carousel
           cycle
@@ -31,14 +31,17 @@
                   <v-img :src="pokemon.sprite" width="400" height="auto" contain></v-img>
                 </v-col>
 
-                <v-col cols="6">
+                <v-col cols="4" class="pa-6">
                   
                   <v-row class="pa-3">
-                    <div class="icon icon-banner pa-1" :class="`${type.type.name}`" v-for="type in pokemon.types" :key="type.type.name">
+                    <div class="icon icon-banner pa-1 mr-4 mb-4" :class="`${type.type.name}`" v-for="type in pokemon.types" :key="type.type.name">
                       <v-img contain :src="require(`@/assets/${type.type.name}.svg`)"></v-img>
                     </div>
                   </v-row>
                     
+                  <div class="text-overline">
+                   #{{pokemon.id}} {{pokemon.name}}
+                  </div>
                   
                   <div>
                     HP
@@ -143,7 +146,7 @@ export default {
   font-family: 'Montserrat', sans-serif;
   font-weight: bold;
   position: absolute;
-  top: 30%;
+  top: 20%;
   left: 50%;
   right: 50%;
   transform: translate(-50%, -50%);
@@ -153,11 +156,11 @@ export default {
 }
 
 .pokedex-parallax{
-  width: 80vw;
+  width: 50vw;
 }
 
 .icon-banner{
-  width: 3em;
+  width: 2.4em;
 }
 
 
