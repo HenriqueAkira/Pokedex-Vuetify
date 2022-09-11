@@ -17,21 +17,40 @@
           show-arrows-on-hover
         >
           <v-carousel-item
-            v-for="(slide, i) in slides"
+            v-for="(pokemon, i) in pokemonsBanner"
             :key="i"
           >
             <v-sheet
-              :color="colors[i]"
               height="100%"
             >
               <v-row
                 class="fill-height"
                 align="center"
-                justify="center"
               >
-                <div class="text-h2">
-                  {{ slide }} Slide
-                </div>
+                <v-col cols="6">
+                  <v-img :src="pokemon.sprite" width="400" height="auto" contain></v-img>
+                </v-col>
+
+                <v-col cols="6">
+                  
+                  <v-row class="pa-3">
+                    <div class="icon icon-banner pa-1" :class="`${type.type.name}`" v-for="type in pokemon.types" :key="type.type.name">
+                      <v-img contain :src="require(`@/assets/${type.type.name}.svg`)"></v-img>
+                    </div>
+                  </v-row>
+                    
+                  
+                  <div>
+                    HP
+                    <v-progress-linear color="red lighten-1" height="15" :value="pokemon.stats[0]"> <strong>{{pokemon.stats[0]}}</strong> </v-progress-linear>
+                    Attack
+                    <v-progress-linear color="deep-orange lighten-3" height="15" :value="pokemon.stats[1]"><strong>{{pokemon.stats[1]}}</strong></v-progress-linear>
+                    Defense
+                    <v-progress-linear height="15" :value="pokemon.stats[2]" color="light-blue"><strong>{{pokemon.stats[2]}}</strong></v-progress-linear>
+                    Speed
+                    <v-progress-linear :value="pokemon.stats[5]" height="15" color="light-green lighten-2"><strong>{{pokemon.stats[5]}}</strong></v-progress-linear>
+                  </div>
+                </v-col>
               </v-row>
             </v-sheet>
           </v-carousel-item>
@@ -46,13 +65,7 @@
 export default {
   data () {
       return {
-        colors: [
-          'indigo',
-          'warning',
-          'pink darken-2',
-          'red lighten-1',
-          'deep-purple accent-4',
-        ],
+        pokemonsBanner: [],
         slides: [
           'First',
           'Second',
@@ -61,6 +74,46 @@ export default {
           'Fifth',
         ],
       }
+    },
+
+    methods: {
+      editApi(pokemon, data){
+            pokemon.id = data.id
+            pokemon.name = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)
+            pokemon.types = data.types
+            pokemon.sprite = data.sprites.front_default
+
+
+            const baseStats = []
+
+            data.stats.map(stat =>{
+              baseStats.push(stat.base_stat)
+            })
+
+            pokemon.stats = baseStats
+
+            return pokemon
+        },
+
+        getPokemonApi(){
+          
+          this.pokemonList = []
+          fetch(`https://pokeapi.co/api/v2/pokemon?limit=5`).then(response => response.json())
+            .then(data => data.results.map(pokemon =>{
+              fetch(pokemon.url).then(response => response.json())
+                .then(detailedData => {
+                  this.pokemonsBanner.push(this.editApi(pokemon, detailedData))
+
+                })
+          }))
+        }
+
+    },
+      
+    
+
+    mounted(){
+      this.getPokemonApi()
     },
 
 }
@@ -101,6 +154,10 @@ export default {
 
 .pokedex-parallax{
   width: 80vw;
+}
+
+.icon-banner{
+  width: 3em;
 }
 
 

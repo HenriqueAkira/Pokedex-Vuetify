@@ -216,15 +216,15 @@
         },
 
         getPokemonApi(offset){
-        this.loading = true 
-        this.pokemonList = []
-        fetch(`https://pokeapi.co/api/v2/pokemon?limit=14&offset=${offset}`).then(response => response.json())
-          .then(data => data.results.map(pokemon =>{
-            fetch(pokemon.url).then(response => response.json())
-              .then(detailedData => {
-                this.pokemonList.push(this.editApi(pokemon, detailedData))
+          this.loading = true 
+          this.pokemonList = []
+          fetch(`https://pokeapi.co/api/v2/pokemon?limit=14&offset=${offset}`).then(response => response.json())
+            .then(data => data.results.map(pokemon =>{
+              fetch(pokemon.url).then(response => response.json())
+                .then(detailedData => {
+                  this.pokemonList.push(this.editApi(pokemon, detailedData))
 
-              })
+                })
           }))
         setTimeout(() => {
           this.loading = false
@@ -261,7 +261,6 @@
 
     mounted(){
       this.getPokemonApi(0)
-
     },
 
   }
