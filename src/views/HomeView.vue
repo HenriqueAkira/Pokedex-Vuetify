@@ -21,7 +21,7 @@
           </p>
         </v-col>
 
-        <v-col cols="12" md="6" align="center">
+        <v-col cols="12" md="6" align="center" >
           <div class="pokedex-parallax ">
               <v-carousel
               height="600"
@@ -33,7 +33,8 @@
                 :key="i"
               >
                 <v-sheet
-                color="rgba(220,220,220,0.8)"
+                  
+                  color="rgba(211,211,211,0.8)"
                   height="90%"
                 >
                   <v-row
@@ -189,6 +190,10 @@ export default {
 
 h4#subtitle.overline.subtitle{
   font-size: 1em !important
+}
+
+div.v-sheet.theme--light {
+  border-radius: 10% !important;
 }
 
 
