@@ -34,6 +34,18 @@
           ></v-select>
         </v-col>
 
+        <v-col cols="1">
+          <v-select
+            v-model="typeFilter"
+            :items="types"
+            chips
+            label="Types"
+            multiple
+            solo
+          ></v-select>
+        </v-col>
+
+
         <v-col>
           <v-tooltip top>
           <template v-slot:activator="{on, attrs}">
@@ -139,6 +151,8 @@
       return{
         pokemonList: [],
         filteredlist: [],
+        types:["normal", "fire", "water", "grass", "flying", "fighting", "poison", "electric", 
+        "ground", "rock", "psychic", "ice", "bug", "ghost", "steel", "dragon", "dark", "fairy"],
         search: "",
         regions:["Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar"],
         typeFilter: [],
