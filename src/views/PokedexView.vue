@@ -20,14 +20,17 @@
             </template>
         </v-col>
 
-        <v-col  cols="12" md="2" sm="6">
+        <v-col cols="1">
           <v-select
-            v-model="typeFilter"
-            :items="types"
-            chips
-            label="Types"
-            multiple
-            solo
+            @change="getPokemonApi"
+            v-model="selectedRegion"
+            :items="regions"
+            item-text="state"
+            item-value="abbr"
+            label="Select"
+            persistent-hint
+            return-object
+            single-line
           ></v-select>
         </v-col>
 
@@ -64,7 +67,6 @@
             
 
             <v-img
-              :style="{backgroundColor:pokemon.avgColor}"
               :src="pokemon.sprite"
               :lazy-src="pokemon.sprite"
             >
@@ -117,15 +119,6 @@
 
       </v-col>
     </v-row>
-    <div class="text-center">
-      <v-pagination
-        :length="120"
-        :total-visible="7"
-        v-model="page"
-        circle
-        @input="next"
-      ></v-pagination>
-    </div>
 
   </v-container>
 
@@ -137,6 +130,7 @@
 
 <script>
 
+
   import analyze from 'rgbaster'
 
   export default {
@@ -146,12 +140,12 @@
         pokemonList: [],
         filteredlist: [],
         search: "",
-        types:["normal", "fire", "water", "grass", "flying", "fighting", "poison", "electric", 
-        "ground", "rock", "psychic", "ice", "bug", "ghost", "steel", "dragon", "dark", "fairy"],
+        regions:["Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar"],
         typeFilter: [],
         loading: true,
         page: 1,
         ascending: true,
+        selectedRegion: "Kanto"
       }
     },
 
@@ -177,10 +171,6 @@
             pokemon.stats = baseStats
 
             return pokemon
-        },
-
-        next(){
-          this.getPokemonApi((this.page - 1) * 8)
         },
 
         filterPokemonSearch(search){
@@ -215,10 +205,25 @@
           }
         },
 
-        getPokemonApi(offset){
+        selectRegion(){
+          switch (this.selectedRegion){
+            case 'Kanto': return {offset: 0, limit: 151}
+            case 'Johto': return {offset: 151, limit: 100}
+            case 'Hoenn': return {offset: 251, limit: 135}
+            case 'Sinnoh': return {offset: 386, limit: 107}
+            case 'Unova': return {offset: 493, limit: 156}
+            case 'Kalos': return {offset: 649, limit: 72}
+            case 'Alola': return {offset: 721, limit: 88}
+            case 'Galar': return {offset: 809, limit: 89}
+            default: break
+          }
+        },
+
+        getPokemonApi(){
           this.loading = true 
           this.pokemonList = []
-          fetch(`https://pokeapi.co/api/v2/pokemon?limit=14&offset=${offset}`).then(response => response.json())
+          let region = this.selectRegion()
+          fetch(`https://pokeapi.co/api/v2/pokemon?limit=${region['limit']}&offset=${region['offset']}`).then(response => response.json())
             .then(data => data.results.map(pokemon =>{
               fetch(pokemon.url).then(response => response.json())
                 .then(detailedData => {
@@ -260,7 +265,7 @@
     },
 
     mounted(){
-      this.getPokemonApi(0)
+      this.getPokemonApi()
     },
 
   }
